@@ -39,7 +39,7 @@ const Page = ({ params, searchParams }) => {
     return errors;
   };
 
-  const onSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -53,7 +53,7 @@ const Page = ({ params, searchParams }) => {
 
     try {
       const res = await axios.post(
-        '/auth/login',
+        '/user/login',
         { email, password },
         { withCredentials: true }
       );
@@ -63,20 +63,12 @@ const Page = ({ params, searchParams }) => {
       toast.success('Login successful!');
       window.location.href = callbackUrl || '/';
     } catch (error) {
+      console.log(error, 'error-login');
+
       toast.error(error.response.data.message);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    const URL =
-      process.env.NODE_ENV === 'development'
-        ? `http://localhost:8000/api/v1/auth/google?redirect_uri=http://localhost:3000`
-        : `https://backend.ladlifoundation.org/api/v1/auth/google?redirect_uri=https://socialinternship.org`;
-
-    if (callbackUrl) sessionStorage.setItem('callback', callbackUrl);
-    window.location.href = URL;
   };
 
   return (
@@ -87,7 +79,7 @@ const Page = ({ params, searchParams }) => {
             <h2 className="text-2xl font-semibold text-center">Sign In</h2>
           </CardHeader>
           <CardContent className="space-y-6">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLogin}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -112,11 +104,7 @@ const Page = ({ params, searchParams }) => {
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="outline"
-                className="w-full bg-transparent"
-              >
+              <Button type="submit" className="w-full">
                 Sign In
               </Button>
             </form>

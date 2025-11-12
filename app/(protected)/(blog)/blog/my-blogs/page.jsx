@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Table,
   TableBody,
@@ -7,8 +9,26 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useEffect, useState } from 'react';
+import axios from '@/lib/axiosInstance';
 
 const page = () => {
+  const [blogs, setBlogs] = useState([]);
+
+  async function getMyBlogs() {
+    try {
+      const res = await axios.get(`/get-my-blogs`);
+
+      setBlogs(res.data.data.blogs);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    getMyBlogs();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">

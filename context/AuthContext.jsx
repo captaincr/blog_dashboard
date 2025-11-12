@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import axios from '@/lib/axiosInstance';
 import { useRouter, usePathname } from 'next/navigation';
 
-const protectedRoutes = ['/'];
+const protectedRoutes = ['/blog'];
 
 const publicOnlyRoutes = ['/login'];
 
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const res = await axios.get('/auth/me');
+      const res = await axios.get('/user/me');
 
       setUser(res.data.data.user);
       return true;
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   const logoutHandler = async () => {
     try {
       await axios.post(
-        '/auth/logout',
+        '/user/logout',
         {},
         {
           withCredentials: true,
