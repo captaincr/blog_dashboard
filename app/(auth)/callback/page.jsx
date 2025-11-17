@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -23,7 +23,7 @@ const AuthCallbackPage = () => {
     }
   }, []);
 
-  return null; // or a loadere
+  return <Suspense fallback={null}>{null}</Suspense>;
 };
 
 export default AuthCallbackPage;

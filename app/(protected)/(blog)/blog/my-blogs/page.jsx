@@ -11,13 +11,15 @@ import {
 } from '@/components/ui/table';
 import { useEffect, useState } from 'react';
 import axios from '@/lib/axiosInstance';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-const page = () => {
+const Page = () => {
   const [blogs, setBlogs] = useState([]);
 
-  async function getMyBlogs() {
+  async function getBlogs() {
     try {
-      const res = await axios.get(`/get-my-blogs`);
+      const res = await axios.get(`/get-my-blogs?isDeleted=false`);
 
       setBlogs(res.data.data.blogs);
     } catch (err) {
@@ -26,32 +28,39 @@ const page = () => {
   }
 
   useEffect(() => {
-    getMyBlogs();
+    getBlogs();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">Leaderboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-8">Active Blogs</h1>
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
-              <TableCaption>A list of your recent invoices.</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Invoice</TableHead>
+                  <TableHead>S.No</TableHead>
+                  <TableHead className="w-[400px]">Blog Title</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>Paid</TableCell>
-                  <TableCell>Credit Card</TableCell>
-                  <TableCell className="text-right">$250.00</TableCell>
-                </TableRow>
+                {blogs.map((blog, index) => (
+                  <TableRow key={blog._id}>
+                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell>{blog.title}</TableCell>
+                    <TableCell>
+                      {blog.isPublished ? 'Approved' : 'Not Approved'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button variant="link" className="text-blue-500">
+                        <Link href={`/blog/${blog._id}`}>Edit</Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
@@ -61,4 +70,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

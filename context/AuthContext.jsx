@@ -4,7 +4,12 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import axios from '@/lib/axiosInstance';
 import { useRouter, usePathname } from 'next/navigation';
 
-const protectedRoutes = ['/blog'];
+const protectedRoutes = [
+  '/blog',
+  '/blog/my-blogs',
+  '/blog/create-blog',
+  '/blog/all-blogs',
+];
 
 const publicOnlyRoutes = ['/login'];
 

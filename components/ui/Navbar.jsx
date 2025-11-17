@@ -13,17 +13,16 @@ const Navbar = () => {
       {isAuthenticated && (
         <nav className="container mx-auto flex justify-between items-center">
           <ul className="flex justify-center py-5 gap-5 font-bold">
-            {user.role === 'admin' ||
-              (user.role === 'manager' && (
-                <li>
-                  <Link href="/blog/all-blogs">All Blogs</Link>
-                </li>
-              ))}
-            {user.role === 'blogger' && (
+            {user.role === 'admin' && (
               <li>
-                <Link href="/blog/my-blogs">My Blogs</Link>
+                <Link href="/blog/all-blogs">All Blogs</Link>
               </li>
             )}
+
+            <li>
+              <Link href="/blog/my-blogs">My Blogs</Link>
+            </li>
+
             <li>
               <Link href="/blog/create-blog">Post a blog</Link>
             </li>

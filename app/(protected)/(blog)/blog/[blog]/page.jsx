@@ -1,52 +1,173 @@
+'use client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import JoditEditor from 'jodit-react';
+import { useEffect, useRef, useState } from 'react';
+import axios from '@/lib/axiosInstance';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { useAuth } from '@/context/AuthContext';
 
-const page = () => {
+const Page = ({ params }) => {
+  const router = useRouter();
+  const editor = useRef(null);
+  const { user } = useAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [blogImage, setBlogImage] = useState('');
+
+  const [previewImage, setPreviewImage] = useState('');
+
+  const handleBlogSubmission = async (e) => {
+    try {
+      e.preventDefault();
+      setIsLoading(true);
+
+      await axios.patch(`/${params.blog}`, { title, content });
+
+      toast.success('Blog Updated !!!');
+
+      setIsLoading(false);
+      setTimeout(() => {
+        router.push('/blog/my-blogs');
+      }, 300);
+    } catch (err) {
+      setIsLoading(false);
+
+      console.log(err);
+    }
+  };
+
+  const updateImageHandler = async (e) => {
+    try {
+      const formData = new FormData();
+
+      formData.append('blogImage', blogImage);
+      const res = await axios.patch(`/update-image/${params.blog}`, formData);
+
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const approveBlog = async () => {
+    try {
+      await axios.patch(`/${params.blog}`, { isPublished: true });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  async function getBlog() {
+    try {
+      const res = await axios.get(`/${params.blog}`);
+
+      setTitle(res.data.data.blog.title);
+      setContent(res.data.data.blog.content);
+      setPreviewImage(res.data.data.blog.images);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    getBlog();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. A,
-          reprehenderit!
-        </h1>
+      <div className="container px-2 md:mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-8">Create A Blog</h1>
+        <form
+          className="border px-3 pb-3 rounded-lg bg-white"
+          onSubmit={handleBlogSubmission}
+          method="post"
+        >
+          <div className="my-3 md:my-5">
+            <Label htmlFor="title">
+              Title <span>*</span>
+            </Label>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Please Enter Blog Title"
+              required
+            />
+          </div>
 
-        <div>
-          {/* <Image src="" alt="" /> */}
-        </div>
+          <div className="my-3 md:my-5">
+            <Label htmlFor="content">
+              Blog Content <span>*</span>
+            </Label>
+            <JoditEditor
+              ref={editor}
+              tabIndex={1}
+              value={content}
+              onBlur={(e) => setContent(e)}
+            />
+          </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-5">
+          <div className="flex gap-3">
+            <Button disabled={isLoading}>
+              {isLoading ? 'Loading...' : 'Edit Blog'}
+            </Button>
+
+            {user.role === 'admin' && (
+              <Button
+                className="bg-green-700"
+                onClick={() => {
+                  approveBlog();
+                }}
+              >
+                Approve
+              </Button>
+            )}
+          </div>
+        </form>
+
+        <div className="mt-10">
           <div>
-            <p className="my-5 text-sm">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae
-              nostrum, aliquid quisquam vel ipsam, iusto, ex aut tempora
-              architecto commodi voluptates incidunt placeat qui asperiores
-              consequuntur eos. Fugiat, nulla magni harum veniam iure magnam
-              esse, ad provident illo voluptas quam dolorem! Eligendi totam cum
-              optio aspernatur perspiciatis, porro non error!
-            </p>
-            <p className="my-5 text-sm">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae
-              nostrum, aliquid quisquam vel ipsam, iusto, ex aut tempora
-              architecto commodi voluptates incidunt placeat qui asperiores
-              consequuntur eos. Fugiat, nulla magni harum veniam iure magnam
-              esse, ad provident illo voluptas quam dolorem! Eligendi totam cum
-              optio aspernatur perspiciatis, porro non error!
-            </p>
-            <p className="my-5 text-sm">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae
-              nostrum, aliquid quisquam vel ipsam, iusto, ex aut tempora
-              architecto commodi voluptates incidunt placeat qui asperiores
-              consequuntur eos. Fugiat, nulla magni harum veniam iure magnam
-              esse, ad provident illo voluptas quam dolorem! Eligendi totam cum
-              optio aspernatur perspiciatis, porro non error!
-            </p>
-            <p className="my-5 text-sm">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae
-              nostrum, aliquid quisquam vel ipsam, iusto, ex aut tempora
-              architecto commodi voluptates incidunt placeat qui asperiores
-              consequuntur eos. Fugiat, nulla magni harum veniam iure magnam
-              esse, ad provident illo voluptas quam dolorem! Eligendi totam cum
-              optio aspernatur perspiciatis, porro non error!
-            </p>
+            <Image src={previewImage} alt="" width={300} height={100} />
+          </div>
+
+          <div className="my-3 md:my-5">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Change Image</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <form method="post" onSubmit={updateImageHandler}>
+                  <div className="my-3">
+                    <Label htmlFor="blog-image">Upload Image</Label>
+                    <Input
+                      type="file"
+                      id="blog-image"
+                      name="blog-image"
+                      onChange={(e) => setBlogImage(e.target.files[0])}
+                      placeholder="Please Enter Blog Title"
+                      required
+                    />
+                  </div>
+                  <Button type="submit">Update Image</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -54,4 +175,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

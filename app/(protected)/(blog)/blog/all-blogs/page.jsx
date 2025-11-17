@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -8,8 +10,37 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useEffect, useState } from 'react';
+import axios from '@/lib/axiosInstance';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
+const Page = () => {
+  const [blogs, setBlogs] = useState([]);
 
-const page = () => {
+  async function getBlogs() {
+    try {
+      const res = await axios.get(`/get-all-blogs?isDeleted=false`);
+
+      setBlogs(res.data.data.blogs);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const deleteHandler = async (id) => {
+    try {
+      await axios.patch(`/${id}`, { isDeleted: true, isPublished: false });
+      getBlogs();
+      toast.success('Blog Deleted');
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    getBlogs();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto">
@@ -21,24 +52,34 @@ const page = () => {
                 <TableRow>
                   <TableHead>S.No</TableHead>
                   <TableHead className="w-[400px]">Blog Title</TableHead>
+                  <TableHead className="w-[400px]">Blog Author</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">1</TableCell>
-                  <TableCell>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Voluptas numquam, soluta consectetur nemo facilis dicta?
-                  </TableCell>
-                  <TableCell>Approved</TableCell>
-                  <TableCell className="text-center">
-                    <Button variant="link">edit</Button>
-                    <Button variant="link">view</Button>
-                    <Button variant="link">delete</Button>
-                  </TableCell>
-                </TableRow>
+                {blogs.map((blog, index) => (
+                  <TableRow key={blog._id}>
+                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell>{blog.title}</TableCell>
+                    <TableCell>{blog.author.fullName}</TableCell>
+                    <TableCell>
+                      {blog.isPublished ? 'Active' : 'Not Active'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button variant="link" className="text-blue-500">
+                        <Link href={`/blog/${blog._id}`}>Edit</Link>
+                      </Button>
+                      <Button
+                        variant="link"
+                        onClick={() => deleteHandler(blog._id)}
+                        className="text-red-500"
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
@@ -48,4 +89,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

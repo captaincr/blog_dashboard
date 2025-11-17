@@ -2,13 +2,16 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import JoditEditor from 'jodit-react';
+// import JoditEditor from 'jodit-react';
 import { useRef, useState } from 'react';
 import axios from '@/lib/axiosInstance';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
-const page = () => {
+const JoditEditor = dynamic(() => import('jodit-react'), { ssr: false });
+
+const Page = () => {
   const router = useRouter();
   const editor = useRef(null);
 
@@ -132,4 +135,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
